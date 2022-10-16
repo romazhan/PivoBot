@@ -1,0 +1,11 @@
+# Byte-compiled
+__pycache__/
+
+# Logs
+*.log
+
+# Environments
+.env
+
+# Memories
+app/brain/*.memory

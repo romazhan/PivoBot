@@ -1,0 +1,4 @@
+﻿aiogram==2.22.1
+python-dotenv==0.21.0
+fuzzywuzzy==0.18.0
+python-Levenshtein==0.20.5
