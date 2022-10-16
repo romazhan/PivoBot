@@ -13,6 +13,6 @@ class TelegramTokenError(ValueError):
         prepare_env_file and self._prepare_env_file()
 
     def _prepare_env_file(self) -> None:
-        with open('.env', 'w') as env_file:
-            with open('.env.example', 'r') as env_example_file:
+        with open('.env.example', 'r') as env_example_file:
+            with open('.env', 'w') as env_file:
                 env_file.write(env_example_file.read())
