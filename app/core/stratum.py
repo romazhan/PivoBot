@@ -53,6 +53,7 @@ class _GroupChat(_PrivateChat):
     _RESPONSE_PROBABILITY = 5 # %
 
     TYPES = ('group', 'supergroup')
+    COMMANDS = ('pivo')
 
     async def _teach(self, message: types.Message) -> None:
         if message.reply_to_message:
@@ -60,6 +61,17 @@ class _GroupChat(_PrivateChat):
     
     async def _respond(self, message: types.Message) -> Union[str, None]:
         return (await brain.answer(message.chat.id, message.text))
+
+    @classmethod
+    async def handle_command(self, message: types.Message) -> None:
+        command = message.text
+
+        if command.startswith('/pivo'):
+            await message.reply(f'''{message.from_user.first_name}, {random.choice((
+                'наливаю кружку свежего 🍺',
+                'наливаю 2 кружки мощного 🍺🍺',
+                'тебе аж 3 кружки 🍺🍺🍺 🥰'
+            ))}''')
 
     @classmethod
     async def handle_message(self, message: types.Message) -> None:
@@ -89,6 +101,15 @@ def init_handlers(dispatcher: PivoDispatcher) -> None:
     )
     async def _(message: types.Message) -> None:
         await _PrivateChat.handle_message(message)
+
+
+    # group|supergroup commands:
+    @dispatcher.message_handler(
+        lambda message: message.chat.type in _GroupChat.TYPES,
+        commands=_GroupChat.COMMANDS
+    )
+    async def _(message: types.Message) -> None:
+        await _GroupChat.handle_command(message)
 
 
     # group|supergroup messages:
