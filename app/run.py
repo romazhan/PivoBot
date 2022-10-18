@@ -2,7 +2,7 @@
 from core.exceptions import TelegramTokenError
 
 from core.kernel import PivoBot
-from core.stratum import init_handlers
+from core.startum import init_handlers
 
 from dotenv import load_dotenv
 from sys import argv
