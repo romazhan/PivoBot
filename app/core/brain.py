@@ -17,7 +17,7 @@ class _Brain(object):
     _GAP = '\n'
 
     _QA_TEMPLATE = 'q:{0}\na:{1}\n'
-    _QS_THRESHOLD = 80
+    _QS_THRESHOLD = 79
     _QS_MAX_COUNT = 8
 
     _BRAIN_PATH = './brain'
