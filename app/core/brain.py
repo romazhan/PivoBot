@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 from typing import List, Union
 
-from fuzzywuzzy import process
-from fuzzywuzzy import utils
+from fuzzywuzzy import utils, process, fuzz
 
 from os.path import exists
 
@@ -103,10 +102,11 @@ class _Brain(object):
             return None
 
         answer = None
-
         extracted_qs = ()
         if utils.full_process(q):
-            extracted_qs = process.extract(q, self._get_qs(self, chat_id), limit=_Brain._QS_MAX_COUNT)
+            extracted_qs = process.extract(
+                q, self._get_qs(self, chat_id), limit=_Brain._QS_MAX_COUNT, scorer=fuzz.token_set_ratio
+            )
         
         if extracted_qs:
             processed_qs = []
