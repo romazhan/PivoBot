@@ -50,7 +50,7 @@ class _PrivateChat(_SuperChat):
 
 
 class _GroupChat(_PrivateChat):
-    _RESPONSE_PROBABILITY = 40 # %
+    _RESPONSE_PROBABILITY = 20 # %
 
     TYPES = ('group', 'supergroup')
     COMMANDS = ('pivo')
