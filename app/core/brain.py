@@ -34,7 +34,7 @@ class _Brain(object):
     def _clear_qa(self, qa: str) -> str:
         return qa.replace(_Brain._Q, '').replace(_Brain._A, '').replace(_Brain._GAP, '')
 
-    def _clear_text(self, text: str) -> Union[str, None]:
+    def _filter(self, text: str) -> Union[str, None]:
         strip_extra_spaces = lambda t: re.sub(r'\s+', ' ', str(t)).strip()
         normalize_punctuation = lambda t: re.sub(r'\s+(?=(?:[,.?!:;…]))', '', t)
         clear_characters = lambda t: re.sub(r'[^А-яё0-9@,.!?.,:;()"*\-+= ]+', '', t).lower().strip()
@@ -89,7 +89,7 @@ class _Brain(object):
 
     @classmethod
     async def learn(self, chat_id: int, q: str, a: str) -> bool:
-        q, a = self._clear_text(self, q), self._clear_text(self, a)
+        q, a = self._filter(self, q), self._filter(self, a)
 
         if q and a and len(self._get_a_from_q(self, chat_id, q, True)) <= _Brain._QS_MAX_COUNT:
             with open(self._get_memory_path(self, chat_id), 'a', encoding=_Brain._BRAIN_ENCODING) as f:
@@ -97,7 +97,7 @@ class _Brain(object):
         
     @classmethod
     async def get_answer(self, chat_id: int, q: str) -> Union[str, None]:
-        q = self._clear_text(self, q)
+        q = self._filter(self, q)
         if not q:
             return None
 
