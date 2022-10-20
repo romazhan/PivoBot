@@ -17,8 +17,8 @@ class _Brain(object):
     _GAP = '\n'
 
     _QA_TEMPLATE = 'q:{0}\na:{1}\n'
-    _QS_THRESHOLD = 79
-    _QS_MAX_COUNT = 8
+    _QS_THRESHOLD = 75
+    _QS_MAX_COUNT = 10
 
     _BRAIN_PATH = './brain'
     _BRAIN_ENCODING = 'utf-8'
@@ -37,7 +37,7 @@ class _Brain(object):
     def _filter(self, text: str) -> Union[str, None]:
         strip_extra_spaces = lambda t: re.sub(r'\s+', ' ', str(t)).strip()
         normalize_punctuation = lambda t: re.sub(r'\s+(?=(?:[,.?!:;…]))', '', t)
-        clear_characters = lambda t: re.sub(r'[^А-яё0-9@,.!?.,:;()"*\-+= ]+', '', t).lower().strip()
+        clear_characters = lambda t: re.sub(r'[^А-яё0-9@,.!?:;()"*\-+= ]+', '', t).strip().lower()
 
         stripped_text = strip_extra_spaces(text)
         normalized_text = normalize_punctuation(stripped_text)
@@ -105,7 +105,7 @@ class _Brain(object):
         extracted_qs = ()
         if utils.full_process(q):
             extracted_qs = process.extract(
-                q, self._get_qs(self, chat_id), limit=_Brain._QS_MAX_COUNT, scorer=fuzz.token_set_ratio
+                q, self._get_qs(self, chat_id), limit=_Brain._QS_MAX_COUNT, scorer=fuzz.token_sort_ratio
             )
         
         if extracted_qs:

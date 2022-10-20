@@ -21,9 +21,13 @@ class _SuperChat(object, metaclass=ABCMeta):
             return True
         return False
 
-    async def _simulate_printing(self, message: types.Message) -> None:
+    async def _simulate_printing(self, message: types.Message, text: str = 'average text') -> None:
+        delay = len(text) * 0.27
+
         await message.bot.send_chat_action(message.chat.id, types.ChatActions.TYPING)
-        await asyncio.sleep(random.uniform(1, 2.2))
+        await asyncio.sleep(random.uniform(
+            delay, delay + random.uniform(0.1, 0.8)
+        ))
 
     @classmethod
     @abstractmethod
@@ -50,10 +54,32 @@ class _PrivateChat(_SuperChat):
 
 
 class _GroupChat(_PrivateChat):
-    _RESPONSE_PROBABILITY = 20 # %
+    _TRIGGERS = (
+        'пиво', 'пивас', 'пивасик', 'бот', 'ботик'
+    )
+    _RESPONSE_PROBABILITY = 30 # %
 
     TYPES = ('group', 'supergroup')
     COMMANDS = ('pivo')
+
+    def _triggered(self, message: types.Message) -> bool:
+        try:
+            if message.reply_to_message.from_id == message.bot._id:
+                return True
+        except AttributeError:
+            pass
+
+        triggers = set(_GroupChat._TRIGGERS)
+        message_list = message.text.lower().split(' ')
+
+        if triggers.intersection(message_list):
+            trigerred_message = ' '.join(list(set(message_list) - triggers)).strip()
+
+            if trigerred_message:
+                message.text = trigerred_message
+                return True
+
+        return False
 
     async def _teach(self, message: types.Message) -> None:
         if message.reply_to_message:
@@ -70,17 +96,18 @@ class _GroupChat(_PrivateChat):
             await message.reply(f'''{message.from_user.first_name}, {random.choice((
                 'наливаю кружку свежего 🍺',
                 'наливаю 2 кружки мощного 🍺🍺',
-                'тебе аж 3 кружки 🍺🍺🍺 🥰'
+                'тебе аж 3 кружки 🍺🍺🍺 🥰',
+                'ты сегодня чемпион, выпей пива - ты галон 😘🥶😜'
             ))}''')
 
     @classmethod
     async def handle_message(self, message: types.Message) -> None:
         await self._teach(self, message)
 
-        if self._probably(self, _GroupChat._RESPONSE_PROBABILITY):
+        if self._triggered(self, message) or self._probably(self, _GroupChat._RESPONSE_PROBABILITY):
             answer = await self._respond(self, message)
             if answer:
-                await self._simulate_printing(self, message)
+                await self._simulate_printing(self, message, answer)
                 await message.reply(answer)
 
 

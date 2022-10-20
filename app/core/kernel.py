@@ -11,6 +11,7 @@ from .exceptions import TelegramTokenError
 
 from datetime import datetime
 from time import sleep
+
 import gc
 
 
@@ -20,6 +21,7 @@ class PivoBot(Bot):
 
     def __init__(self: PivoBot, telegram_token: str) -> None:
         Bot.__init__(self, telegram_token, parse_mode=PivoBot._PARSE_MODE)
+        self._id = int(telegram_token.split(':')[0])
         self._dispatcher = PivoDispatcher(self)
 
     def _print_start_report(self) -> None:
@@ -32,8 +34,10 @@ class PivoBot(Bot):
         self._print_start_report()
         try:
             utils.executor.start_polling(self._dispatcher, skip_updates=True)
+
         except utils.exceptions.Unauthorized:
             raise TelegramTokenError('inactive TELEGRAM_TOKEN', False)
+
         except Exception as unhandled_error:
             print(f'[unhandled_error]: {unhandled_error}')
             sleep(PivoBot._DELAY_FOR_RESTART)
