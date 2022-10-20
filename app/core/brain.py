@@ -17,8 +17,8 @@ class _Brain(object):
     _GAP = '\n'
 
     _QA_TEMPLATE = 'q:{0}\na:{1}\n'
-    _QS_THRESHOLD = 69
-    _QS_MAX_COUNT = 10
+    _QS_THRESHOLD = 55
+    _QS_MAX_COUNT = 12
 
     _BRAIN_PATH = './brain'
     _BRAIN_ENCODING = 'utf-8'

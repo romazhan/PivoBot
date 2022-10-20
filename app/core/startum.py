@@ -55,7 +55,7 @@ class _PrivateChat(_SuperChat):
 
 class _GroupChat(_PrivateChat):
     _TRIGGERS = (
-        'пиво', 'пивас', 'пивасик', 'бот', 'ботик'
+        'пиво', 'пива', 'пивас', 'пивасик', 'бот', 'ботик'
     )
     _RESPONSE_PROBABILITY = 30 # %
 
@@ -104,7 +104,7 @@ class _GroupChat(_PrivateChat):
     async def handle_message(self, message: types.Message) -> None:
         await self._teach(self, message)
 
-        if self._triggered(self, message) or self._probably(self, _GroupChat._RESPONSE_PROBABILITY):
+        if self._probably(self, _GroupChat._RESPONSE_PROBABILITY) or self._triggered(self, message):
             answer = await self._respond(self, message)
             if answer:
                 await self._simulate_printing(self, message, answer)
