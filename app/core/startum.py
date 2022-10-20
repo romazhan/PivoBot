@@ -22,7 +22,7 @@ class _SuperChat(object, metaclass=ABCMeta):
         return False
 
     async def _simulate_printing(self, message: types.Message, text: str = 'average text') -> None:
-        delay = len(text) * 0.27
+        delay = len(text) * 0.19
 
         await message.bot.send_chat_action(message.chat.id, types.ChatActions.TYPING)
         await asyncio.sleep(random.uniform(
@@ -64,7 +64,7 @@ class _GroupChat(_PrivateChat):
 
     def _triggered(self, message: types.Message) -> bool:
         try:
-            if message.reply_to_message.from_id == message.bot._id:
+            if message.reply_to_message.from_id == message.bot.id:
                 return True
         except AttributeError:
             pass

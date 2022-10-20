@@ -21,7 +21,6 @@ class PivoBot(Bot):
 
     def __init__(self: PivoBot, telegram_token: str) -> None:
         Bot.__init__(self, telegram_token, parse_mode=PivoBot._PARSE_MODE)
-        self._id = int(telegram_token.split(':')[0])
         self._dispatcher = PivoDispatcher(self)
 
     def _print_start_report(self) -> None:
