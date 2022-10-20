@@ -2,7 +2,8 @@
 from abc import ABCMeta, abstractmethod
 
 from typing import Tuple, Union
-from aiogram import types
+
+from aiogram import types, utils
 
 from .kernel import PivoDispatcher
 
@@ -108,7 +109,11 @@ class _GroupChat(_PrivateChat):
             answer = await self._respond(self, message)
             if answer:
                 await self._simulate_printing(self, message, answer)
-                await message.reply(answer)
+
+                try:
+                    await message.reply(answer)
+                except utils.exceptions.MessageToReplyNotFound:
+                    await message.bot.send_message(message.chat.id, 'Удалил, да? 🫡')
 
 
 # front-controller:
