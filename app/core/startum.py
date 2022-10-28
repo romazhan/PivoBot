@@ -58,7 +58,7 @@ class _GroupChat(_PrivateChat):
     _TRIGGERS = (
         'пиво', 'пива', 'пивас', 'пивасик', 'бот', 'ботик'
     )
-    _RESPONSE_PROBABILITY = 30 # %
+    _RESPONSE_PROBABILITY = 20 # %
 
     TYPES = ('group', 'supergroup')
     COMMANDS = ('pivo')
