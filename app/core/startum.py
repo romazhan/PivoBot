@@ -22,17 +22,17 @@ class _SuperChat(object, metaclass=ABCMeta):
             return True
         return False
 
-    async def _simulate_printing(self, message: types.Message, text: str = 'average text') -> None:
+    async def _simulate_printing(self, msg: types.Message, text: str = 'average text') -> None:
         delay = len(text) * 0.19
 
-        await message.bot.send_chat_action(message.chat.id, types.ChatActions.TYPING)
+        await msg.bot.send_chat_action(msg.chat.id, types.ChatActions.TYPING)
         await asyncio.sleep(random.uniform(
             delay, delay + random.uniform(0.1, 0.8)
         ))
 
     @classmethod
     @abstractmethod
-    async def handle_message(self, message: types.Message) -> None:
+    async def handle_msg(self, msg: types.Message) -> None:
         '''Handle this message'''
 
 
@@ -41,16 +41,16 @@ class _PrivateChat(_SuperChat):
     COMMANDS = ('start', 'help')
 
     @classmethod
-    async def handle_command(self, message: types.Message) -> None:
-        command = message.text[1:]
+    async def handle_command(self, msg: types.Message) -> None:
+        command = msg.text[1:]
 
         if command == 'start':
-            await message.bot.send_message(message.from_user.id, 'Started')
+            await msg.bot.send_message(msg.from_user.id, 'Started')
         elif command == 'help':
-            await message.reply('Helped')
+            await msg.reply('Helped')
 
     @classmethod
-    async def handle_message(self, _: types.Message) -> None:
+    async def handle_msg(self, _: types.Message) -> None:
         pass
 
 
@@ -63,38 +63,38 @@ class _GroupChat(_PrivateChat):
     TYPES = ('group', 'supergroup')
     COMMANDS = ('pivo')
 
-    def _triggered(self, message: types.Message) -> bool:
+    def _triggered(self, msg: types.Message) -> bool:
         try:
-            if message.reply_to_message.from_id == message.bot.id:
+            if msg.reply_to_message.from_id == msg.bot.id:
                 return True
         except AttributeError:
             pass
 
         triggers = set(_GroupChat._TRIGGERS)
-        message_list = message.text.lower().split(' ')
+        msg_list = msg.text.lower().split(' ')
 
-        if triggers.intersection(message_list):
-            trigerred_message = ' '.join(list(set(message_list) - triggers)).strip()
+        if triggers.intersection(msg_list):
+            trigerred_msg = ' '.join(list(set(msg_list) - triggers)).strip()
 
-            if trigerred_message:
-                message.text = trigerred_message
+            if trigerred_msg:
+                msg.text = trigerred_msg
                 return True
 
         return False
 
-    async def _teach(self, message: types.Message) -> None:
-        if message.reply_to_message:
-            await brain.train(message.chat.id, message.reply_to_message.text, message.text)
+    async def _teach(self, msg: types.Message) -> None:
+        if msg.reply_to_message:
+            await brain.train(msg.chat.id, msg.reply_to_message.text, msg.text)
     
-    async def _respond(self, message: types.Message) -> Union[str, None]:
-        return (await brain.answer(message.chat.id, message.text))
+    async def _respond(self, msg: types.Message) -> Union[str, None]:
+        return (await brain.answer(msg.chat.id, msg.text))
 
     @classmethod
-    async def handle_command(self, message: types.Message) -> None:
-        command = message.text
+    async def handle_command(self, msg: types.Message) -> None:
+        command = msg.text
 
         if command.startswith('/pivo'):
-            await message.reply(f'''{message.from_user.first_name}, {random.choice((
+            await msg.reply(f'''{msg.from_user.first_name}, {random.choice((
                 'наливаю кружку свежего 🍺',
                 'наливаю 2 кружки мощного 🍺🍺',
                 'тебе аж 3 кружки 🍺🍺🍺 🥰',
@@ -102,51 +102,51 @@ class _GroupChat(_PrivateChat):
             ))}''')
 
     @classmethod
-    async def handle_message(self, message: types.Message) -> None:
-        await self._teach(self, message)
+    async def handle_msg(self, msg: types.Message) -> None:
+        await self._teach(self, msg)
 
-        if self._probably(self, _GroupChat._RESPONSE_PROBABILITY) or self._triggered(self, message):
-            answer = await self._respond(self, message)
+        if self._probably(self, _GroupChat._RESPONSE_PROBABILITY) or self._triggered(self, msg):
+            answer = await self._respond(self, msg)
             if answer:
-                await self._simulate_printing(self, message, answer)
+                await self._simulate_printing(self, msg, answer)
 
                 try:
-                    await message.reply(answer)
+                    await msg.reply(answer)
                 except utils.exceptions.MessageToReplyNotFound:
-                    await message.bot.send_message(message.chat.id, 'Удалил, да? 🫡')
+                    await msg.bot.send_message(msg.chat.id, 'Удалил, да? 🫡')
 
 
 # front-controller:
 def init_handlers(dispatcher: PivoDispatcher) -> None:
     # private chat commands:
     @dispatcher.message_handler(
-        lambda message: message.chat.type in _PrivateChat.TYPES,
+        lambda msg: msg.chat.type in _PrivateChat.TYPES,
         commands=_PrivateChat.COMMANDS
     )
-    async def _(message: types.Message) -> None:
-        await _PrivateChat.handle_command(message)
+    async def _(msg: types.Message) -> None:
+        await _PrivateChat.handle_command(msg)
 
 
     # private chat messages:
     @dispatcher.message_handler(
-        lambda message: message.chat.type in _PrivateChat.TYPES
+        lambda msg: msg.chat.type in _PrivateChat.TYPES
     )
-    async def _(message: types.Message) -> None:
-        await _PrivateChat.handle_message(message)
+    async def _(msg: types.Message) -> None:
+        await _PrivateChat.handle_msg(msg)
 
 
     # group|supergroup commands:
     @dispatcher.message_handler(
-        lambda message: message.chat.type in _GroupChat.TYPES,
+        lambda msg: msg.chat.type in _GroupChat.TYPES,
         commands=_GroupChat.COMMANDS
     )
-    async def _(message: types.Message) -> None:
-        await _GroupChat.handle_command(message)
+    async def _(msg: types.Message) -> None:
+        await _GroupChat.handle_command(msg)
 
 
     # group|supergroup messages:
     @dispatcher.message_handler(
-        lambda message: message.chat.type in _GroupChat.TYPES
+        lambda msg: msg.chat.type in _GroupChat.TYPES
     )
-    async def _(message: types.Message) -> None:
-        await _GroupChat.handle_message(message)
+    async def _(msg: types.Message) -> None:
+        await _GroupChat.handle_msg(msg)
