@@ -11,7 +11,7 @@ import os
 
 def self_init() -> PivoBot:
     ROOT = os.path.dirname(argv[0])
-    os.chdir(ROOT)
+    ROOT and os.chdir(ROOT)
 
     load_dotenv('./.env')
 
